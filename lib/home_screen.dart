@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'btn_view.dart';
 import 'name_and_scores_fileds.dart';
 
@@ -11,7 +12,8 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   List<String> boardState = ['', '', '', '', '', '', '', '', ''];
-
+  int pl1Score = 0;
+  int pl2Score = 0;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -29,18 +31,18 @@ class _MyAppState extends State<MyApp> {
             ),
             body: Column(
               children: [
-                const Row(
+                Row(
                   children: [
-                    SizedBox(
+                    const SizedBox(
                       height: 200,
                     ),
                     NameAndScoresFileds(
                       name: 'yehia',
-                      score: 0,
+                      score: pl1Score,
                     ),
                     NameAndScoresFileds(
                       name: 'mohamed',
-                      score: 0,
+                      score: pl2Score,
                     ),
                   ],
                 ),
@@ -118,12 +120,58 @@ class _MyAppState extends State<MyApp> {
 
   void onBoardClick(int index) {
     if (counter.isEven) {
-      boardState[index] = 'x';
+      boardState[index] = 'X';
+      if (checkWinner('X')) {
+        print('player 1 win');
+        pl1Score = pl1Score + 10;
+        clearBoardState();
+      }
       counter++;
     } else {
       boardState[index] = 'O';
-      counter++;
+      if (checkWinner('O')) {
+        print('player 2 win');
+        pl2Score = pl2Score + 10;
+        clearBoardState();
+      } else if (checkDraw()) {
+        print('the game is draw');
+        clearBoardState();
+      } else {
+        counter++;
+      }
     }
     setState(() {});
+  }
+
+  bool checkWinner(String symbol) {
+    for (int i = 0; i < 9; i += 3) {
+      if (boardState[i] == symbol &&
+          boardState[i + 1] == symbol &&
+          boardState[i + 2] == symbol) return true;
+    }
+    for (int i = 0; i < 3; i++) {
+      if (boardState[i] == symbol &&
+          boardState[i + 3] == symbol &&
+          boardState[i + 6] == symbol) return true;
+    }
+    if (boardState[0] == symbol &&
+        boardState[4] == symbol &&
+        boardState[8] == symbol) return true;
+
+    if (boardState[2] == symbol &&
+        boardState[4] == symbol &&
+        boardState[6] == symbol) return true;
+
+    return false;
+  }
+
+  void clearBoardState() {
+    boardState = List.filled(9, '');
+  }
+
+  bool checkDraw() {
+    return boardState.every((element) => element.isNotEmpty) &&
+        !checkWinner('X') &&
+        !checkWinner('O');
   }
 }
